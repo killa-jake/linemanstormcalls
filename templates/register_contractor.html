@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Contractor Registration - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .reg-page h1 { margin-bottom: 0.5rem; }
+    .reg-page .subtitle { color: #666; margin-bottom: 2rem; }
+    .section-heading { font-size: 1.1rem; font-weight: 700; margin: 1.75rem 0 0.75rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .section-heading:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+    .section-desc { font-size: 0.88rem; color: #888; margin-bottom: 1rem; }
+    .ack-group { background: #f8f9fb; border-radius: 8px; padding: 1rem; margin-top: 0.5rem; }
+    .ack-group label { font-size: 0.92rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container reg-page">
+    <h1>Contractor Registration</h1>
+    <p class="subtitle">Register as a signatory contractor to post storm mobilization notices.</p>
+
+    {% if success %}
+    <div class="success-box">
+        <h2>Application Submitted</h2>
+        <p>Your application is pending manual review. We will contact you within 24-48 hours.</p>
+        <p style="font-size:0.88rem;color:#666;">You cannot post until your account is approved.</p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+    {% else %}
+
+    {% if errors %}
+    <div class="errors"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <form class="card" method="POST" action="/register/contractor">
+
+        <h3 class="section-heading">1. Company Identity</h3>
+        <p class="section-desc">Public-facing: company name and HQ state are displayed. All other fields are private (admin-only).</p>
+
+        <div class="form-group">
+            <label for="company_legal_name">Company Legal Name</label>
+            <input type="text" id="company_legal_name" name="company_legal_name" value="{{ form.get('company_legal_name', '') }}" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="headquarters_state">Headquarters State</label>
+                <select id="headquarters_state" name="headquarters_state" required>
+                    <option value="">Select...</option>
+                    {% for st in US_STATES %}
+                    <option value="{{ st }}" {{ 'selected' if form.get('headquarters_state') == st }}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="company_website">Company Website</label>
+                <input type="url" id="company_website" name="company_website" value="{{ form.get('company_website', '') }}" placeholder="https://example.com" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="company_email">Company Email</label>
+            <input type="email" id="company_email" name="company_email" value="{{ form.get('company_email', '') }}" required>
+            <div class="form-hint">Must be a company domain (no Gmail/Yahoo/etc). Domain must match your website.</div><div class="form-group">
+  <label for="password">Password (min 10 characters)</label>
+  <input type="password" id="password" name="password" required minlength="10">
+</div>
+
+<div class="form-group">
+  <label for="password_confirm">Confirm Password</label>
+  <input type="password" id="password_confirm" name="password_confirm" required minlength="10">
+</div>
+
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="primary_contact_name">Primary Contact Name</label>
+                <input type="text" id="primary_contact_name" name="primary_contact_name" value="{{ form.get('primary_contact_name', '') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="primary_contact_phone">Primary Contact Phone</label>
+                <input type="text" id="primary_contact_phone" name="primary_contact_phone" value="{{ form.get('primary_contact_phone', '') }}" placeholder="(555) 123-4567" required>
+            </div>
+        </div>
+
+        <h3 class="section-heading">2. Industry Legitimacy (self-declared)</h3>
+        <p class="section-desc">This information is self-declared and stored as such.</p>
+
+        <div class="form-group">
+            <label for="contractor_type">Contractor Type</label>
+            <select id="contractor_type" name="contractor_type" required>
+                <option value="">Select...</option>
+                {% for ct in CONTRACTOR_TYPES %}
+                <option value="{{ ct }}" {{ 'selected' if form.get('contractor_type') == ct }}>{{ ct }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>States of Operation</label>
+            <select name="states_of_operation" multiple class="multi-select" required>
+                {% for st in US_STATES %}
+                <option value="{{ st }}" {{ 'selected' if st in form.getlist('states_of_operation') }}>{{ st }}</option>
+                {% endfor %}
+            </select>
+            <div class="form-hint">Hold Ctrl/Cmd to select multiple states.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Union Status</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="ibew_signatory" value="1" {{ 'checked' if form.get('ibew_signatory') }}> IBEW signatory</label>
+                <label><input type="checkbox" name="clears_through_ibew" value="1" {{ 'checked' if form.get('clears_through_ibew') }}> Clears work through IBEW locals</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="locals_cleared_through">Locals Typically Cleared Through</label>
+            <input type="text" id="locals_cleared_through" name="locals_cleared_through" value="{{ form.get('locals_cleared_through', '') }}" placeholder="e.g. Local 134, Local 222">
+        </div>
+
+        <h3 class="section-heading">3. Posting Intent &amp; Acknowledgments</h3>
+
+        <div class="form-group">
+            <label>Intended Use</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="intent_mobilization" value="1" {{ 'checked' if form.get('intent_mobilization') }}> Post mobilization notices</label>
+                <label><input type="checkbox" name="intent_advisories" value="1" {{ 'checked' if form.get('intent_advisories') }}> Post storm advisories</label>
+            </div>
+            <div class="form-hint">Select at least one.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Required Acknowledgments</label>
+            <div class="ack-group checkbox-group">
+                <label><input type="checkbox" name="ack_no_dispatch" value="1" {{ 'checked' if form.get('ack_no_dispatch') }}> I understand this platform does not dispatch or hire</label>
+                <label><input type="checkbox" name="ack_clear_through_local" value="1" {{ 'checked' if form.get('ack_clear_through_local') }}> All work will clear through the appropriate IBEW local</label>
+                <label><input type="checkbox" name="ack_no_collect_info" value="1" {{ 'checked' if form.get('ack_no_collect_info') }}> I will not collect worker info through the platform</label>
+            </div>
+            <div class="form-hint">All three must be checked to proceed.</div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+        </div>
+    </form>
+    <div style="text-align:center;margin-top:1.5rem;color:#666;font-size:0.95rem;">
+        Already registered? <a href="/login/contractor" style="color:#0f3460;">Log in here</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

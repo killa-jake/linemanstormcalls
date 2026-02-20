@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Create {{ "Notice" if poster_type == "tier2" else "Post" }} - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .char-count { font-size: 0.82rem; color: #888; text-align: right; margin-top: 0.2rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:0.5rem;">Create {{ "Mobilization Notice" if poster_type == "tier2" else "Post" }}</h1>
+    <p style="color:#666;margin-bottom:1.5rem;">
+        {% if poster_type == 'tier2' %}
+        Posting as <strong>{{ poster.company_legal_name }}</strong>. All contractor notices include an automatic compliance disclaimer.
+        {% else %}
+        Posting as <strong>IBEW Local {{ poster.local_number }}</strong>.
+        {% endif %}
+    </p>
+
+    {% if errors %}
+    <div class="errors"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <form class="card" method="POST" action="/post/create">
+        <div class="form-group">
+            <label for="post_type">Post Type</label>
+            <select id="post_type" name="post_type" required>
+                <option value="">Select...</option>
+                {% for pt in allowed_types %}
+                <option value="{{ pt }}" {{ 'selected' if form.get('post_type') == pt }}>{{ pt }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="region">Region</label>
+                <select id="region" name="region" required>
+                    <option value="">Select...</option>
+                    {% for r in REGIONS %}
+                    <option value="{{ r }}" {{ 'selected' if form.get('region') == r }}>{{ r }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="expected_start_window">Expected Start Window</label>
+                <input type="text" id="expected_start_window" name="expected_start_window"
+                       value="{{ form.get('expected_start_window', '') }}"
+                       placeholder="e.g. Feb 15-20 or Within 48hrs of landfall" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>State(s)</label>
+            <select name="states" multiple class="multi-select" required>
+                {% for st in US_STATES %}
+                <option value="{{ st }}" {{ 'selected' if st in form.getlist('states') }}>{{ st }}</option>
+                {% endfor %}
+            </select>
+            <div class="form-hint">Hold Ctrl/Cmd to select multiple.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Classification(s) Needed</label>
+            <div class="checkbox-group">
+                {% for code, name in CLASSIFICATIONS %}
+                <label>
+                    <input type="checkbox" name="classification" value="{{ code }}"
+                           {{ 'checked' if code in form.getlist('classification') }}>
+                    {{ name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="clearing_locals">Clearing Local(s)</label>
+            <input type="text" id="clearing_locals" name="clearing_locals"
+                   value="{{ form.get('clearing_locals', '') }}"
+                   placeholder="e.g. IBEW Local 134, Local 222" required>
+            <div class="form-hint">Required. Which IBEW local(s) will workers clear through?</div>
+        </div>
+
+        <div class="form-group">
+            <label for="hall_contact">Hall Contact Info (optional)</label>
+            <input type="text" id="hall_contact" name="hall_contact"
+                   value="{{ form.get('hall_contact', '') }}"
+                   placeholder="e.g. Local 134 dispatch: (555) 123-4567">
+        </div>
+
+        <div class="form-group">
+            <label for="short_notes">Notes</label>
+            <textarea id="short_notes" name="short_notes" maxlength="500"
+                      placeholder="Additional details (max 500 characters){% if poster_type == 'tier2' %}. No links, contact info, or worker info requests.{% endif %}">{{ form.get('short_notes', '') }}</textarea>
+            <div class="char-count"><span id="note-count">{{ form.get('short_notes', '')|length }}</span>/500</div>
+        </div>
+
+        {% if poster_type == 'tier2' %}
+        <div class="disclaimer-box" style="margin-bottom:1rem;">
+            The following disclaimer will be automatically appended to your post:<br>
+            <strong>{{ TIER2_DISCLAIMER }}</strong>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Publish Notice</button>
+        <a href="{{ url_for('dashboard_contractor') if poster_type == 'tier2' else url_for('dashboard_local') }}"
+           style="margin-left:1rem;color:#666;text-decoration:none;">Cancel</a>
+    </form>
+</div>
+<script>
+var ta = document.getElementById('short_notes');
+var ct = document.getElementById('note-count');
+if (ta && ct) { ta.addEventListener('input', function() { ct.textContent = ta.value.length; }); }
+</script>
+{% endblock %}

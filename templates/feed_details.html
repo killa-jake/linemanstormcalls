@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .detail-title h1 {
+    margin: 0;
+  }
+
+  .detail-title .sub {
+    margin-top: 0.35rem;
+    color: var(--gray-600);
+    font-size: 0.98rem;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-card {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--gray-300);
+  }
+  .hero-card.tier1::before { background: var(--green-700); }
+  .hero-card.tier2::before { background: var(--amber-700); }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .meta-item {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 0.95rem;
+    min-width: 0;
+  }
+  .meta-label {
+    display: block;
+    color: var(--gray-500);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+  .meta-value {
+    color: var(--gray-800);
+    font-size: 0.96rem;
+    font-weight: 650;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .section {
+    margin-top: 1rem;
+  }
+
+  .section h2 {
+    margin-bottom: 0.75rem;
+  }
+
+  .notes {
+    color: var(--gray-800);
+    font-size: 0.98rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+
+  .timestamp {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+  }
+  .timestamp strong { color: var(--gray-800); }
+
+  .kv {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0.6rem 1rem;
+    align-items: start;
+    margin-top: 0.75rem;
+  }
+  .kv .k {
+    color: var(--gray-500);
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kv .v {
+    color: var(--gray-800);
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 820px) {
+    .meta-grid { grid-template-columns: 1fr; }
+    .kv { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+  <div class="detail-title">
+    <h1>Notice Details</h1>
+    <div class="sub">
+      {% if post.poster_type == 'tier2' %}
+        Contractor notice from <strong>{{ post.poster_display_name }}</strong>
+      {% else %}
+        Local notice from <strong>{{ post.poster_display_name }}</strong>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="detail-actions">
+    <a href="/feed" class="btn btn-outline">← Back to Notices</a>
+
+    {% if session.get('contractor_id') %}
+      <a href="/dashboard/contractor" class="btn btn-primary">My Dashboard</a>
+    {% elif session.get('local_id') %}
+      <a href="/dashboard/local" class="btn btn-primary">My Dashboard</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card hero-card {{ 'tier1' if post.poster_type == 'tier1' else 'tier2' }}">
+  <div class="badges">
+    {% if post.poster_type == 'tier1' %}
+      <span class="badge badge-tier1">Local Notice</span>
+      <span class="badge badge-tier1">{{ post.post_type }}</span>
+    {% else %}
+      <span class="badge badge-tier2">Contractor Notice</span>
+    {% endif %}
+
+    {% if post.status and post.status != 'active' %}
+      <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+    {% else %}
+      <span class="badge badge-active">Active</span>
+    {% endif %}
+  </div>
+
+  <h2 style="margin:0;">
+    {{ post.region }}
+  </h2>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <span class="meta-label">States</span>
+      <div class="meta-value">{{ post.states|from_json|join(', ') }}</div>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Expected Start</span>
+      <div class="meta-value">{{ post.expected_start_window }}</div>
+    </div>
+
+    <div class="meta-item">
+      <span class="meta-label">Clearing Locals</span>
+      <div class="meta-value">{{ post.clearing_locals }}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    {% set ns = namespace(names=[]) %}
+    {% for code in post.classification_needed|from_json %}
+      {% for c_code, c_name in CLASSIFICATIONS %}
+        {% if c_code == code %}{% set ns.names = ns.names + [c_name] %}{% endif %}
+      {% endfor %}
+    {% endfor %}
+
+    <div class="kv">
+      <div class="k">Classifications</div>
+      <div class="v">{{ ns.names|join(', ') }}</div>
+
+      {% if post.hall_contact %}
+        <div class="k">Hall / Contact</div>
+        <div class="v">{{ post.hall_contact }}</div>
+      {% endif %}
+
+      <div class="k">Posted</div>
+      <div class="v"><span class="timestamp"><strong>{{ post.created_at }}</strong></span></div>
+
+      {% if post.expires_at %}
+        <div class="k">Expires</div>
+        <div class="v"><span class="timestamp"><strong>{{ post.expires_at }}</strong></span></div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if post.short_notes %}
+    <div class="section" style="margin-top:1.25rem;">
+      <h2>Notes</h2>
+      <div class="notes">{{ post.short_notes }}</div>
+    </div>
+  {% endif %}
+
+  {% if post.poster_type == 'tier2' %}
+    <div class="disclaimer-box" style="margin-top:1.25rem;">
+      {{ TIER2_DISCLAIMER }}
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ local.local_name or ("IBEW Local " + local.local_number) }} Dashboard - StormCalls{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:1.5rem;">IBEW Local {{ local.local_number }} Dashboard</h1>
+
+    <div class="card" style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <span class="badge badge-tier1">Verified IBEW Local</span>
+                <strong style="margin-left:0.5rem;">Local {{ local.local_number }}</strong>
+                {% if local.city or local.state %}
+                <span style="color:#888;margin-left:0.5rem;">{{ local.city }}{% if local.city and local.state %}, {% endif %}{{ local.state }}</span>
+                {% endif %}
+            </div>
+            <a href="/post/create" class="btn btn-primary">Create New Post</a>
+        </div>
+    </div>
+
+    <h2 class="section-title">Your Posts ({{ posts|length }})</h2>
+
+    {% if posts %}
+    {% for post in posts %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <span class="badge badge-tier1">{{ post.post_type }}</span>
+                <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+                <h3 style="margin-top:0.35rem;">{{ post.region }} &mdash; {{ post.states|from_json|join(', ') }}</h3>
+                <div style="font-size:0.9rem;color:#666;margin-top:0.25rem;">
+                    Start: {{ post.expected_start_window }} &middot; Clearing: {{ post.clearing_locals }}
+                </div>
+            </div>
+            <a href="/feed/{{ post.id }}" class="btn btn-outline btn-sm">View</a>
+        </div>
+        <div style="font-size:0.82rem;color:#aaa;margin-top:0.5rem;">Posted {{ post.created_at }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card" style="text-align:center;color:#888;padding:2rem;">
+        No posts yet. <a href="/post/create">Create your first post.</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

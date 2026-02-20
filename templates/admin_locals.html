@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Admin - IBEW Locals - StormCalls{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:0.5rem;">Admin Panel</h1>
+    <div class="admin-nav">
+        <a href="/admin/contractors">Contractors</a>
+        <a href="/admin/locals" class="active">IBEW Locals</a>
+        <a href="/admin/posts">Posts</a>
+        <a href="/admin/audit">Audit Log</a>
+    </div>
+
+    <h2 class="section-title">Create IBEW Local Account</h2>
+
+    {% if errors %}
+    <div class="errors"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    {% endif %}
+
+    <form class="card" method="POST" action="/admin/locals/create">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="local_number">Local Number</label>
+                <input type="text" id="local_number" name="local_number" value="{{ form.get('local_number', '') }}" placeholder="e.g. 134" required>
+            </div>
+            <div class="form-group">
+                <label for="local_name">Local Name (optional)</label>
+                <input type="text" id="local_name" name="local_name" value="{{ form.get('local_name', '') }}">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="{{ form.get('city', '') }}">
+            </div>
+            <div class="form-group">
+                <label for="state">State</label>
+                <select id="state" name="state">
+                    <option value="">Select...</option>
+                    {% for st in US_STATES %}
+                    <option value="{{ st }}" {{ 'selected' if form.get('state') == st }}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="contact_email">Contact Email</label>
+                <input type="email" id="contact_email" name="contact_email" value="{{ form.get('contact_email', '') }}" required>
+            </div>
+            <div class="form-group">
+                <label for="contact_phone">Contact Phone</label>
+                <input type="text" id="contact_phone" name="contact_phone" value="{{ form.get('contact_phone', '') }}">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Local Account (Verified)</button>
+    </form>
+
+    <h2 class="section-title" style="margin-top:2rem;">Existing Locals ({{ locals_list|length }})</h2>
+    {% for loc in locals_list %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <strong>IBEW Local {{ loc.local_number }}</strong>
+                {% if loc.local_name %}<span style="color:#888;"> &mdash; {{ loc.local_name }}</span>{% endif %}
+                {% if loc.city or loc.state %}
+                <span style="color:#888;margin-left:0.5rem;">{{ loc.city }}{% if loc.city and loc.state %}, {% endif %}{{ loc.state }}</span>
+                {% endif %}
+                <br>
+                <span style="font-size:0.88rem;color:#666;">{{ loc.contact_email }}{% if loc.contact_phone %} &middot; {{ loc.contact_phone }}{% endif %}</span>
+                <br>
+                {% if loc.verified %}
+                <span class="badge badge-approved">Verified</span>
+                {% else %}
+                <span class="badge badge-denied">Not Verified</span>
+                {% endif %}
+            </div>
+            <form method="POST" action="/admin/locals/{{ loc.id }}/toggle">
+                <button type="submit" class="btn {{ 'btn-danger' if loc.verified else 'btn-success' }} btn-sm">
+                    {{ "Revoke" if loc.verified else "Verify" }}
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;color:#888;">No local accounts yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

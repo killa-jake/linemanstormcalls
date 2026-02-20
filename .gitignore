@@ -1,0 +1,15 @@
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local database
+stormcalls.db
+
+# Zip files
+*.zip
+
+# OS files
+.DS_Store

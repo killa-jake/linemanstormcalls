@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Admin - Audit Log - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .audit-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .audit-table th { text-align: left; padding: 0.6rem 0.75rem; background: #f8f9fb; border-bottom: 2px solid #e5e7eb; font-size: 0.82rem; text-transform: uppercase; color: #888; letter-spacing: 0.3px; }
+    .audit-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid #eee; }
+    .audit-table tr:hover td { background: #f8f9fb; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:0.5rem;">Admin Panel</h1>
+    <div class="admin-nav">
+        <a href="/admin/contractors">Contractors</a>
+        <a href="/admin/locals">IBEW Locals</a>
+        <a href="/admin/posts">Posts</a>
+        <a href="/admin/audit" class="active">Audit Log</a>
+    </div>
+
+    <h2 class="section-title">Audit Log (last 200 entries)</h2>
+    <div class="card" style="overflow-x:auto;padding:0;">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Action</th>
+                    <th>Type</th>
+                    <th>ID</th>
+                    <th>Status Change</th>
+                    <th>Details</th>
+                    <th>By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr>
+                    <td style="white-space:nowrap;">{{ e.created_at }}</td>
+                    <td><span class="badge badge-tier1">{{ e.action }}</span></td>
+                    <td>{{ e.entity_type }}</td>
+                    <td>{{ e.entity_id }}</td>
+                    <td>{% if e.previous_status %}{{ e.previous_status }} &rarr; {{ e.new_status }}{% else %}&mdash;{% endif %}</td>
+                    <td>{{ e.details or '&mdash;' }}</td>
+                    <td>{{ e.performed_by }}</td>
+                </tr>
+                {% endfor %}
+                {% if not entries %}
+                <tr><td colspan="7" style="text-align:center;color:#888;padding:2rem;">No audit entries yet.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

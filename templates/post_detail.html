@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ post.post_type }} - {{ post.poster_display_name }} - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .back-link {
+        display: inline-flex; align-items: center; gap: 0.35rem;
+        margin-bottom: 1.25rem; color: var(--gray-500); text-decoration: none;
+        font-size: 0.875rem; font-weight: 500;
+    }
+    .back-link:hover { color: var(--navy-800); }
+    .detail-card { border-top: 3px solid var(--green-600); }
+    .detail-card.tier2 { border-top-color: var(--amber-600); }
+    .detail-header {
+        border-bottom: 1px solid var(--gray-200);
+        padding-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .detail-header .badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .detail-header h1 { font-size: 1.5rem; }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+    }
+    .detail-item label {
+        display: block;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        color: var(--gray-500);
+        margin-bottom: 0.25rem;
+    }
+    .detail-item .value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--navy-800);
+    }
+    .notes-section { margin-bottom: 1.5rem; }
+    .notes-section h2 { font-size: 1rem; margin-bottom: 0.4rem; color: var(--gray-800); }
+    .notes-section p { color: var(--gray-600); white-space: pre-wrap; line-height: 1.6; }
+    .hall-section {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-md);
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .hall-section h2 { font-size: 0.95rem; margin-bottom: 0.35rem; color: var(--gray-800); }
+    .hall-section p { color: var(--gray-600); font-size: 0.95rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <a href="/feed" class="back-link">&larr; Back to notices</a>
+    <div class="card card-lg detail-card {{ 'tier2' if post.poster_type == 'tier2' }}">
+        <div class="detail-header">
+            <div class="badges">
+                {% if post.poster_type == 'tier1' %}
+                <span class="badge badge-tier1">{{ post.post_type }}</span>
+                <span class="badge badge-tier1">Posted by {{ post.poster_display_name }}</span>
+                {% else %}
+                <span class="badge badge-tier2">Contractor Notice</span>
+                <span class="badge badge-tier2">Must clear through local</span>
+                {% endif %}
+                {% if post.status != 'active' %}
+                <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+                {% endif %}
+            </div>
+            <h1>
+                {% if post.poster_type == 'tier2' %}{{ post.poster_display_name }} &mdash; {% endif %}
+                {{ post.region }}
+            </h1>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>States</label>
+                <span class="value">{{ post.states|from_json|join(', ') }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Expected Start</label>
+                <span class="value">{{ post.expected_start_window }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Clearing Local(s)</label>
+                <span class="value">{{ post.clearing_locals }}</span>
+            </div>
+            <div class="detail-item">
+                <label>Classifications Needed</label>
+                <span class="value">
+                    {% set ns = namespace(names=[]) %}
+                    {% for code in post.classification_needed|from_json %}
+                        {% for c_code, c_name in CLASSIFICATIONS %}
+                            {% if c_code == code %}{% set ns.names = ns.names + [c_name] %}{% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    {{ ns.names|join(', ') }}
+                </span>
+            </div>
+        </div>
+
+        {% if post.short_notes %}
+        <div class="notes-section">
+            <h2>Details</h2>
+            <p>{{ post.short_notes }}</p>
+        </div>
+        {% endif %}
+
+        {% if post.hall_contact %}
+        <div class="hall-section">
+            <h2>Hall Contact</h2>
+            <p>{{ post.hall_contact }}</p>
+        </div>
+        {% endif %}
+
+        {% if post.poster_type == 'tier2' %}
+        <div class="disclaimer-box">{{ TIER2_DISCLAIMER }}</div>
+        {% endif %}
+
+        <p class="timestamp" style="text-align:right;margin-top:1.25rem;">Posted {{ post.created_at }}</p>
+    </div>
+</div>
+{% endblock %}

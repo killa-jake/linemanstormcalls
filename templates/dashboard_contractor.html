@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Contractor Dashboard - StormCalls{% endblock %}
+{% block content %}
+{% if contractor.status == "pending" %}
+  <div class="alert alert-warning">
+    Your contractor application is <b>pending review</b>. You’ll be able to post storm calls once approved.
+  </div>
+{% elif contractor.status == "denied" %}
+  <div class="alert alert-danger">
+    Your contractor application was <b>denied</b>.
+    {% if contractor.admin_notes %}<div><b>Notes:</b> {{ contractor.admin_notes }}</div>{% endif %}
+  </div>
+{% elif contractor.status == "revoked" %}
+  <div class="alert alert-danger">
+    Your contractor access was <b>revoked</b>.
+    {% if contractor.revoked_reason %}<div><b>Reason:</b> {{ contractor.revoked_reason }}</div>{% endif %}
+  </div>
+{% endif %}
+<div class="container">
+    <h1 style="margin-bottom:1.5rem;">Contractor Dashboard</h1>
+
+    {% if contractor.status == 'pending' %}
+    <div class="card" style="text-align:center;padding:3rem;">
+        <span class="badge badge-pending" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Pending Review</span>
+        <h2 style="margin-top:1rem;">Your application is under review</h2>
+        <p style="color:#666;margin-top:0.5rem;">We will contact you within 24-48 hours. You cannot post until approved.</p>
+    </div>
+    {% elif contractor.status == 'denied' %}
+    <div class="card" style="text-align:center;padding:3rem;">
+        <span class="badge badge-denied" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Denied</span>
+        <h2 style="margin-top:1rem;">Your application was denied</h2>
+        {% if contractor.admin_notes %}
+        <p style="color:#666;margin-top:0.5rem;">Notes: {{ contractor.admin_notes }}</p>
+        {% endif %}
+    </div>
+    {% elif contractor.status == 'revoked' %}
+    <div class="card" style="text-align:center;padding:3rem;">
+        <span class="badge badge-revoked" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Revoked</span>
+        <h2 style="margin-top:1rem;">Your posting privileges have been revoked</h2>
+        <p style="color:#666;margin-top:0.5rem;">
+            Please contact support if you believe this is an error.
+        </p>
+        {% if contractor.revoked_reason %}
+        <p style="color:#888;margin-top:0.5rem;font-size:0.9rem;">Reason: {{ contractor.revoked_reason }}</p>
+        {% endif %}
+    </div>
+    {% else %}
+
+    <div class="card" style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <span class="badge badge-approved">Verified Poster</span>
+                <strong style="margin-left:0.5rem;">{{ contractor.company_legal_name }}</strong>
+                <span style="color:#888;margin-left:0.5rem;">({{ contractor.headquarters_state }})</span>
+            </div>
+      {% if contractor.status == "approved" %}
+  <a href="{{ url_for('create_post') }}" class="btn btn-primary">
+    Create a Storm Call
+  </a>
+{% else %}
+  <button class="btn btn-primary" disabled title="Approval required to post">
+    Create a Storm Call
+  </button>
+{% endif %}
+
+    </div>
+
+    <h2 class="section-title">Your Posts ({{ posts|length }})</h2>
+
+    {% if posts %}
+    {% for post in posts %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <span class="badge badge-tier2">{{ post.post_type }}</span>
+                <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+                <h3 style="margin-top:0.35rem;">{{ post.region }} &mdash; {{ post.states|from_json|join(', ') }}</h3>
+                <div style="font-size:0.9rem;color:#666;margin-top:0.25rem;">
+                    Start: {{ post.expected_start_window }} &middot; Clearing: {{ post.clearing_locals }}
+                </div>
+            </div>
+            <a href="/feed/{{ post.id }}" class="btn btn-outline btn-sm">View</a>
+        </div>
+        <div style="font-size:0.82rem;color:#aaa;margin-top:0.5rem;">Posted {{ post.created_at }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card" style="text-align:center;color:#888;padding:2rem;">
+        No posts yet. <a href="/post/create">Create your first notice.</a>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}

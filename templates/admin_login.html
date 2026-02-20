@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Admin Login - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .login-page { max-width: 440px; margin: 0 auto; padding: 3rem 1rem; }
+    .login-page h1 { margin-bottom: 0.35rem; }
+    .login-page .subtitle { color: var(--gray-600); margin-bottom: 2rem; font-size: 0.95rem; }
+    .login-form {
+        background: #fff; border-radius: var(--radius-lg); padding: 2rem;
+        box-shadow: var(--shadow-card); border: 1px solid var(--gray-200);
+    }
+    .form-actions { margin-top: 1.5rem; }
+    .form-actions .btn { width: 100%; text-align: center; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="login-page">
+    <h1>Admin Login</h1>
+    <p class="subtitle">Enter the admin password.</p>
+    {% if error %}
+    <div class="error-msg">{{ error }}</div>
+    {% endif %}
+    <form class="login-form" method="POST">
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autofocus>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Log In</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

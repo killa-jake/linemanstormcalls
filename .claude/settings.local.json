@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 list:*)",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -m pip install:*)",
+      "Bash(sudo apt-get update:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(python3:*)",
+      "Bash(curl:*)",
+      "Bash(/home/rjkacir/stormcalls/venv/bin/python3:*)",
+      "Bash(kill:*)"
+    ]
+  }
+}

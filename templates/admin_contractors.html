@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Admin - Contractors - StormCalls{% endblock %}
+{% block extra_css %}
+<style>
+    .contractor-detail { font-size: 0.9rem; color: #555; margin-top: 0.5rem; }
+    .contractor-detail .row { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin-bottom: 0.3rem; }
+    .contractor-detail .lbl { color: #888; font-size: 0.82rem; }
+    .notes-form { display: flex; gap: 0.5rem; align-items: flex-start; margin-top: 0.75rem; flex-wrap: wrap; }
+    .notes-form input[type="text"] {
+        flex: 1; min-width: 200px; padding: 0.35rem 0.6rem; border: 1.5px solid #d0d5dd;
+        border-radius: 4px; font-size: 0.88rem;
+    }
+    .validation-flags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:0.5rem;">Admin Panel</h1>
+    <div class="admin-nav">
+        <a href="/admin/contractors" class="active">Contractors</a>
+        <a href="/admin/locals">IBEW Locals</a>
+        <a href="/admin/posts">Posts</a>
+        <a href="/admin/audit">Audit Log</a>
+    </div>
+
+    <h2 class="section-title">Pending Applications ({{ pending|length }})</h2>
+    {% for c in pending %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <h3>{{ c.company_legal_name }} <span class="badge badge-pending">Pending</span></h3>
+        </div>
+        <div class="contractor-detail">
+            <div class="row">
+                <span><span class="lbl">HQ:</span> {{ c.headquarters_state }}</span>
+                <span><span class="lbl">Type:</span> {{ c.contractor_type }}</span>
+                <span><span class="lbl">States:</span> {{ c.states_of_operation|from_json|join(', ') }}</span>
+            </div>
+            <div class="row">
+                <span><span class="lbl">Website:</span> {{ c.company_website }}</span>
+                <span><span class="lbl">Email:</span> {{ c.company_email }}</span>
+            </div>
+            <div class="row">
+                <span><span class="lbl">Contact:</span> {{ c.primary_contact_name }}</span>
+                <span><span class="lbl">Phone:</span> {{ c.primary_contact_phone }}</span>
+            </div>
+            <div class="row">
+                <span><span class="lbl">IBEW Signatory:</span> {{ "Yes" if c.ibew_signatory else "No" }}</span>
+                <span><span class="lbl">Clears through IBEW:</span> {{ "Yes" if c.clears_through_ibew else "No" }}</span>
+                {% if c.locals_cleared_through %}
+                <span><span class="lbl">Locals:</span> {{ c.locals_cleared_through }}</span>
+                {% endif %}
+            </div>
+            <div class="row">
+                <span><span class="lbl">Intent:</span>
+                    {{ "Mobilization" if c.intent_mobilization else "" }}{{ ", " if c.intent_mobilization and c.intent_advisories else "" }}{{ "Advisories" if c.intent_advisories else "" }}
+                </span>
+            </div>
+            <div class="validation-flags">
+                <span class="badge {{ 'badge-check' if c.ack_no_dispatch else 'badge-x' }}">Ack: No dispatch {{ "Y" if c.ack_no_dispatch else "N" }}</span>
+                <span class="badge {{ 'badge-check' if c.ack_clear_through_local else 'badge-x' }}">Ack: Clears local {{ "Y" if c.ack_clear_through_local else "N" }}</span>
+                <span class="badge {{ 'badge-check' if c.ack_no_collect_info else 'badge-x' }}">Ack: No collect {{ "Y" if c.ack_no_collect_info else "N" }}</span>
+                <span class="badge {{ 'badge-check' if c.email_domain_validated else 'badge-x' }}">Email domain {{ "valid" if c.email_domain_validated else "mismatch" }}</span>
+                <span class="badge {{ 'badge-check' if c.website_resolves else 'badge-x' }}">Website {{ "resolves" if c.website_resolves else "unresolved" }}</span>
+            </div>
+            <div style="font-size:0.82rem;color:#aaa;margin-top:0.4rem;">Submitted: {{ c.created_at }} &middot; All info self-declared</div>
+        </div>
+        <div class="notes-form">
+            <form method="POST" action="/admin/contractors/{{ c.id }}/approve" style="display:flex;gap:0.5rem;flex:1;min-width:200px;">
+                <input type="text" name="notes" placeholder="Admin notes (optional)">
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+            </form>
+            <form method="POST" action="/admin/contractors/{{ c.id }}/deny">
+                <input type="hidden" name="notes" value="">
+                <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;color:#888;">No pending applications.</div>
+    {% endfor %}
+
+    {% if approved %}
+    <h2 class="section-title" style="margin-top:2rem;">Approved ({{ approved|length }})</h2>
+    {% for c in approved %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <div style="flex:1;">
+                <h3>{{ c.company_legal_name }} <span class="badge badge-approved">Approved</span></h3>
+                <div class="contractor-detail">
+                    <div class="row">
+                        <span><span class="lbl">HQ:</span> {{ c.headquarters_state }}</span>
+                        <span><span class="lbl">Email:</span> {{ c.company_email }}</span>
+                        <span><span class="lbl">Type:</span> {{ c.contractor_type }}</span>
+                    </div>
+                    {% if c.admin_notes %}<div style="margin-top:0.3rem;"><span class="lbl">Notes:</span> {{ c.admin_notes }}</div>{% endif %}
+                </div>
+            </div>
+            <div class="revoke-form">
+                <form method="POST" action="/admin/contractors/{{ c.id }}/revoke" style="display:flex;gap:0.5rem;align-items:flex-start;flex-wrap:wrap;"
+                      onsubmit="return confirm('Revoke posting privileges for {{ c.company_legal_name }}? This takes effect immediately.')">
+                    <input type="text" name="reason" placeholder="Reason (optional)" style="padding:0.35rem 0.6rem;border:1.5px solid #d0d5dd;border-radius:4px;font-size:0.85rem;min-width:180px;">
+                    <button type="submit" class="btn btn-danger btn-sm">Revoke Approval</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if revoked %}
+    <h2 class="section-title" style="margin-top:2rem;">Revoked ({{ revoked|length }})</h2>
+    {% for c in revoked %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <div style="flex:1;">
+                <h3>{{ c.company_legal_name }} <span class="badge badge-revoked">Revoked</span></h3>
+                <div class="contractor-detail">
+                    <div class="row">
+                        <span><span class="lbl">Email:</span> {{ c.company_email }}</span>
+                        <span><span class="lbl">Revoked:</span> {{ c.revoked_at }}</span>
+                    </div>
+                    {% if c.revoked_reason %}<div style="margin-top:0.3rem;"><span class="lbl">Reason:</span> {{ c.revoked_reason }}</div>{% endif %}
+                </div>
+            </div>
+            <form method="POST" action="/admin/contractors/{{ c.id }}/approve"
+                  onsubmit="return confirm('Reactivate posting privileges for {{ c.company_legal_name }}?')">
+                <input type="hidden" name="notes" value="">
+                <button type="submit" class="btn btn-success btn-sm">Reactivate</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if denied %}
+    <h2 class="section-title" style="margin-top:2rem;">Denied ({{ denied|length }})</h2>
+    {% for c in denied %}
+    <div class="card">
+        <h3>{{ c.company_legal_name }} <span class="badge badge-denied">Denied</span></h3>
+        <div class="contractor-detail">
+            <div class="row">
+                <span><span class="lbl">Email:</span> {{ c.company_email }}</span>
+            </div>
+            {% if c.admin_notes %}<div style="margin-top:0.3rem;"><span class="lbl">Notes:</span> {{ c.admin_notes }}</div>{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

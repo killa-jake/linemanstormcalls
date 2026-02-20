@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Admin - Posts - StormCalls{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 style="margin-bottom:0.5rem;">Admin Panel</h1>
+    <div class="admin-nav">
+        <a href="/admin/contractors">Contractors</a>
+        <a href="/admin/locals">IBEW Locals</a>
+        <a href="/admin/posts" class="active">Posts</a>
+        <a href="/admin/audit">Audit Log</a>
+    </div>
+
+    <h2 class="section-title">All Posts ({{ posts|length }})</h2>
+    {% for post in posts %}
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
+            <div style="flex:1;">
+                <span class="badge badge-{{ 'tier1' if post.poster_type == 'tier1' else 'tier2' }}">{{ post.poster_type|upper }}</span>
+                <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+                <h3 style="margin-top:0.35rem;">{{ post.poster_display_name }} &mdash; {{ post.post_type }}</h3>
+                <div style="font-size:0.9rem;color:#666;margin-top:0.2rem;">
+                    {{ post.region }} &middot; {{ post.states|from_json|join(', ') }}
+                    &middot; Start: {{ post.expected_start_window }}
+                    &middot; Clearing: {{ post.clearing_locals }}
+                </div>
+                {% if post.short_notes %}
+                <p style="font-size:0.88rem;color:#888;margin-top:0.3rem;">{{ post.short_notes[:200] }}</p>
+                {% endif %}
+                <div style="font-size:0.82rem;color:#aaa;margin-top:0.3rem;">
+                    Posted {{ post.created_at }} &middot; Updated {{ post.updated_at }}
+                </div>
+            </div>
+            <div style="display:flex;gap:0.3rem;flex-wrap:wrap;align-items:flex-start;">
+                {% for s in ['active', 'filled', 'canceled', 'expired', 'removed'] %}
+                {% if s != post.status %}
+                <form method="POST" action="/admin/posts/{{ post.id }}/status" style="display:inline;">
+                    <input type="hidden" name="status" value="{{ s }}">
+                    <button type="submit" class="btn btn-sm {{ 'btn-danger' if s == 'removed' else 'btn-outline' }}">{{ s|capitalize }}</button>
+                </form>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align:center;color:#888;">No posts yet.</div>
+    {% endfor %}
+</div>
+{% endblock %}

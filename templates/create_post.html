@@ -50,8 +50,9 @@
         </div>
 
         <div class="form-group">
-            <label>State(s)</label>
-            <select name="states" multiple class="multi-select" required>
+            <label>Show-up Location</label>
+            <select name="states" required>
+                <option value="">Select show-up location</option>
                 {% for st in US_STATES %}
                 <option value="{{ st }}" {{ 'selected' if st in form.getlist('states') }}>{{ st }}</option>
                 {% endfor %}

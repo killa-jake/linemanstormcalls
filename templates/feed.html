@@ -248,8 +248,14 @@
 
       <div class="meta-grid">
         <div class="meta-item">
-          <span class="meta-label">States</span>
-          <div class="meta-value">{{ post.states|from_json|join(', ') }}</div>
+          {% set st = post.states|from_json %}
+          <span>
+            <span class="meta-label">
+              {{ "Show-Up:" if post.poster_type == "tier2" else "States:" }}
+            </span>
+            {{ st[0] if post.poster_type == "tier2" and st|length > 0 else st|join(', ') }}
+          </span>
+          
         </div>
 
         <div class="meta-item">

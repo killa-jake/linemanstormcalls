@@ -216,10 +216,10 @@
   </div>
 
   {% if post.short_notes %}
-    <div class="section" style="margin-top:1.25rem;">
-      <h2>Notes</h2>
-      <div class="notes">{{ post.short_notes }}</div>
-    </div>
+  <div class="card">
+    <h3>Notes</h3>
+    <p style="margin-top:0.5rem;">{{ post.short_notes | linkify }}</p>
+  </div>
   {% endif %}
 
   {% if post.poster_type == 'tier2' %}

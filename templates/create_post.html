@@ -95,12 +95,12 @@
         </div>
 
         {% if poster_type == 'tier2' %}
-        <div class="disclaimer-box" style="margin-bottom:1rem;">
-            The following disclaimer will be automatically appended to your post:<br>
-            <strong>{{ TIER2_DISCLAIMER }}</strong>
+        <div class="form-hint">
+            <strong>Encouraged:</strong> Paste your onboarding link (your website/form) and include the show-up address/location.
+            LinemanStormCalls is informational only and does not dispatch or onboard.
         </div>
         {% endif %}
-
+        
         <button type="submit" class="btn btn-primary">Publish Notice</button>
         <a href="{{ url_for('dashboard_contractor') if poster_type == 'tier2' else url_for('dashboard_local') }}"
            style="margin-left:1rem;color:#666;text-decoration:none;">Cancel</a>

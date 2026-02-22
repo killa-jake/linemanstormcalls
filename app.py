@@ -70,16 +70,7 @@ FREE_EMAIL_DOMAINS = {
 
 FORBIDDEN_PATTERNS = [
     (r"send\s+(your|me|us)\s+(ticket|info|resume|details|number)", "Requesting worker information"),
-    (r"fill\s+(our|the|this)\s+roster", "Roster collection language"),
-    (r"text\s+(your|me|us)\s+(info|details|number)", "Requesting worker info via text"),
-    (r"\bDM\s+me\b", "Personal messaging requests"),
-    (r"\bdirect\s+message\b", "Personal messaging requests"),
-    (r"\bsign\s*up\b", "Signup/registration language"),
-    (r"\bapply\s+(now|here|today|online|at)\b", "Application language"),
-    (r"\bcontact\s+me\s+(at|directly|via)\b", "Personal contact solicitation"),
-    (r"\bcall\s+me\s+at\b", "Personal contact solicitation"),
-    (r"https?://", "Direct links not allowed"),
-    (r"\bwww\.", "Direct links not allowed"),
+
 ]
 
 TIER2_DISCLAIMER = (
@@ -225,6 +216,24 @@ def from_json_filter(value):
     except (json.JSONDecodeError, TypeError):
         return []
 
+import re
+from markupsafe import Markup, escape
+
+URL_RE = re.compile(r'(https?://[^\s<]+|www\.[^\s<]+)', re.IGNORECASE)
+
+@app.template_filter("linkify")
+def linkify(text):
+    """Convert URLs in plain text into clickable links safely."""
+    if not text:
+        return ""
+    safe = escape(text)
+
+    def repl(match):
+        url = match.group(0)
+        href = url if url.lower().startswith("http") else f"https://{url}"
+        return Markup(f'<a href="{href}" target="_blank" rel="noopener noreferrer">{url}</a>')
+
+    return Markup(URL_RE.sub(repl, safe))
 
 @app.context_processor
 def inject_constants():

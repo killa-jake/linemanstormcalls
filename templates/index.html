@@ -95,7 +95,11 @@
 {% block content %}
 <section class="hero">
     <div style="display:flex; align-items:center; gap:14px; margin-bottom: 12px;">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="LinemanStormCalls" style="height:46px; width:auto;">
+        <img 
+            src="{{ url_for('static', filename='staticfavicon.png') }}" 
+            alt="LinemanStormCalls" 
+            style="height:46px; width:auto;"
+        >
         <div>
             <h1 style="margin:0;">LinemanStormCalls</h1>
             <div class="subtitle">Built by linemen for linemen.</div>

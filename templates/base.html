@@ -4,8 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>LinemanStormCalls – Storm Work Notices for Linemen</title>
-  <meta name="description" content="LinemanStormCalls is a centralized storm notice board built by linemen to simplify storm call visibility. View contractor storm calls in one place without joining multiple rosters or social media groups." />
+<title>{% block title %}LinemanStormCalls{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  <meta property="og:title" content="LinemanStormCalls">
+  <meta property="og:description" content="Storm mobilization notices in one place. Built by linemen for linemen.">
+  <meta property="og:type" content="website">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -379,8 +382,16 @@
     <!-- NAV -->
     <header class="nav">
       <div class="nav-inner">
-        <a class="brand" href="/">
-          <div class="brand-mark" aria-hidden="true"></div>
+        <a href="/" class="logo" style="display:flex; align-items:center; gap:10px;">
+          <img
+            src="{{ url_for('static', filename='logo.png') }}"
+            alt="LinemanStormCalls"
+            style="height:28px; width:auto; display:block;"
+           />
+          <span style="color:#fff; font-family: var(--font-heading); font-weight:700;">
+            Lineman<span style="color: var(--orange-500);">Storm</span>Calls
+          </span>
+        </a>
           <div class="brand-text">
             <div class="brand-title">Lineman<span>StormCalls</span></div>
             <div class="brand-subtitle">Built by linemen to simplify storm call visibility.</div>

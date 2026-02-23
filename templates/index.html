@@ -94,7 +94,13 @@
 {% endblock %}
 {% block content %}
 <section class="hero">
-    <h1><span>LinemanStormCalls</span> 
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom: 12px;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="LinemanStormCalls" style="height:46px; width:auto;">
+        <div>
+            <h1 style="margin:0;">LinemanStormCalls</h1>
+            <div class="subtitle">Built by linemen for linemen.</div>
+        </div>
+    </div>
     <p class="tagline">A public bulletin board for storm restoration mobilization notices. Browse active calls from contractors.</p>
     <p class="compliance-note">This platform does not dispatch workers or manage hiring. All work must clear through the appropriate IBEW local.</p>
     <div class="hero-buttons">

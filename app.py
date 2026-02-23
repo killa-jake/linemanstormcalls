@@ -481,25 +481,6 @@ def feed_details(post_id):
         TIER2_DISCLAIMER=TIER2_DISCLAIMER,
     )
 
-@app.route("/feed/<int:post_id>")
-def post_detail(post_id):
-    db = get_db()
-    post = db.execute("""
-        SELECT * FROM posts
-        WHERE id = ? AND status != 'removed'
-        AND (
-            (poster_type = 'tier1' AND poster_id IN
-                (SELECT id FROM tier1_posters WHERE verified = 1))
-            OR
-            (poster_type = 'tier2' AND poster_id IN
-                (SELECT id FROM contractors WHERE status = 'approved'))
-        )
-    """, (post_id,)).fetchone()
-    if post is None:
-        return "Post not found", 404
-    return render_template("post_detail.html", post=post)
-
-
 # ==========================================================================
 # Routes: Contractor Registration & Login
 # ==========================================================================

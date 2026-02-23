@@ -56,8 +56,7 @@
                 {% for st in US_STATES %}
                 <option value="{{ st }}" {{ 'selected' if st in form.getlist('states') }}>{{ st }}</option>
                 {% endfor %}
-            </select>
-            <div class="form-hint">Hold Ctrl/Cmd to select multiple.</div>
+            
         </div>
 
         <div class="form-group">

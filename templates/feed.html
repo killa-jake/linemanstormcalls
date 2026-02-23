@@ -242,7 +242,9 @@
         </div>
 
         <div>
-          <a href="/feed/{{ post.id }}" class="btn btn-outline">View Details</a>
+          <a href="/feed/{{ post.id }}?{{ request.query_string|safe }}" class="btn btn-outline btn-sm">
+            View Details
+        </a>
         </div>
       </div>
 

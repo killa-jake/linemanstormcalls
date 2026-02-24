@@ -18,9 +18,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ==========================
-       TOKENS
-       ========================== */
     :root{
       --navy-950:#0b1220;
       --navy-900:#0f1724;
@@ -43,16 +40,6 @@
       --gray-800:#2b3139;
       --gray-900:#1a1d21;
 
-      --green-100:#d1fae5;
-      --green-800:#065f46;
-
-      --red-50:#fef2f2;
-      --red-700:#b91c1c;
-
-      --amber-50:#fffbeb;
-      --amber-100:#fef3c7;
-      --amber-800:#92400e;
-
       --font-heading:'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-body:'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
@@ -60,18 +47,15 @@
       --radius-md:12px;
       --radius-lg:16px;
 
-      --shadow-sm:0 1px 2px rgba(0,0,0,0.06);
-      --shadow-md:0 6px 18px rgba(0,0,0,0.10);
       --shadow-card:0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md:0 6px 18px rgba(0,0,0,0.10);
 
       --container: 980px;
     }
 
-    /* ==========================
-       RESET
-       ========================== */
-    *, *::before, *::after{ box-sizing:border-box; }
+    *{ box-sizing:border-box; }
     html, body{ height:100%; }
+
     body{
       margin:0;
       font-family:var(--font-body);
@@ -84,54 +68,52 @@
       -webkit-font-smoothing:antialiased;
     }
 
-    /* Kill underline + default link styles */
-    a, a:visited, a:active{
-      color:inherit;
-      text-decoration:none;
+    /* Default link styling: visible everywhere */
+    a{
+      color: var(--navy-700);
+      text-decoration: none;
     }
-    a:hover{ text-decoration:none; }
+    a:hover{ text-decoration: underline; text-underline-offset: 2px; }
 
     h1,h2,h3,h4{
       font-family:var(--font-heading);
+      color:var(--navy-800);
       line-height:1.25;
       margin:0;
-      color:var(--navy-800);
     }
 
-    /* ==========================
-       LAYOUT
-       ========================== */
+    /* App shell */
     .app{
       min-height:100vh;
       display:flex;
       flex-direction:column;
     }
+
+    /* GLOBAL container so pages aren't full-width */
     .container{
-      max-width:var(--container);
-      margin:0 auto;
-      width:100%;
-      padding:2rem 1.25rem;
+      max-width: var(--container);
+      margin: 0 auto;
+      width: 100%;
+      padding: 2rem 1.25rem;
     }
 
-    /* ==========================
-       NAV
-       ========================== */
+    /* NAV */
     .nav{
-      position:sticky;
-      top:0;
-      z-index:100;
+      position: sticky;
+      top: 0;
+      z-index: 100;
       background: linear-gradient(180deg, rgba(15,23,36,0.98), rgba(15,23,36,0.94));
-      border-bottom:1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       backdrop-filter: blur(10px);
     }
     .nav-inner{
-      max-width:var(--container);
-      margin:0 auto;
-      padding:0.8rem 1.25rem;
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0.8rem 1.25rem;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:1rem;
+      gap: 1rem;
     }
 
     .brand{
@@ -142,8 +124,10 @@
       font-size:1.15rem;
       line-height:1;
       white-space:nowrap;
+      text-decoration:none !important; /* kill underline always */
     }
-    .brand span{ color:var(--orange-400); }
+    .brand:hover{ text-decoration:none !important; }
+    .brand span{ color: var(--orange-400); }
 
     .nav-links{
       display:flex;
@@ -152,8 +136,10 @@
       flex-wrap:wrap;
       justify-content:flex-end;
     }
+
     .nav-link{
-      color:rgba(255,255,255,0.80);
+      color: rgba(255,255,255,0.85);
+      text-decoration:none !important;
       font-size:0.9rem;
       font-weight:700;
       padding:0.45rem 0.7rem;
@@ -161,9 +147,10 @@
       transition: background 120ms ease, color 120ms ease, transform 120ms ease;
     }
     .nav-link:hover{
-      background:rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.10);
       color:#fff;
       transform: translateY(-1px);
+      text-decoration:none !important;
     }
 
     .nav-pill{
@@ -171,8 +158,8 @@
       align-items:center;
       padding:0.38rem 0.65rem;
       border-radius:999px;
-      background:rgba(245,158,11,0.14);
-      border:1px solid rgba(245,158,11,0.20);
+      background: rgba(245,158,11,0.14);
+      border: 1px solid rgba(245,158,11,0.20);
       color:#fff;
       font-size:0.82rem;
       font-weight:800;
@@ -182,9 +169,7 @@
       text-overflow:ellipsis;
     }
 
-    /* ==========================
-       CARDS
-       ========================== */
+    /* Cards + buttons (used across pages) */
     .card{
       background:#fff;
       border-radius:var(--radius-lg);
@@ -193,11 +178,8 @@
       border:1px solid var(--gray-200);
       margin-bottom:1rem;
     }
-    .card:hover{ box-shadow:var(--shadow-md); }
+    .card:hover{ box-shadow: var(--shadow-md); }
 
-    /* ==========================
-       BUTTONS
-       ========================== */
     .btn{
       display:inline-flex;
       align-items:center;
@@ -211,58 +193,28 @@
       font-weight:800;
       cursor:pointer;
       white-space:nowrap;
+      text-decoration:none !important;
       transition: transform 120ms ease, filter 120ms ease, background 120ms ease, border 120ms ease;
     }
     .btn:hover{ transform: translateY(-1px); }
-    .btn:active{ transform: translateY(0px); }
 
     .btn-primary{
-      background:var(--orange-500);
-      color:#fff;
-      border-color: rgba(0,0,0,0.06);
+      background: var(--orange-500);
+      color:#fff !important;
     }
     .btn-primary:hover{ filter: brightness(0.96); }
 
     .btn-outline{
       background:#fff;
-      color:var(--navy-800);
-      border-color:var(--gray-300);
+      color: var(--navy-800) !important;
+      border-color: var(--gray-300);
     }
-    .btn-outline:hover{
-      background:var(--gray-50);
-      border-color:var(--navy-600);
-    }
+    .btn-outline:hover{ background: var(--gray-50); }
 
-    .btn-lg{
-      padding:0.85rem 1.6rem;
-      font-size:1rem;
-      border-radius:14px;
-    }
-    .btn-sm{
-      padding:0.45rem 0.75rem;
-      font-size:0.82rem;
-      border-radius:10px;
-    }
+    .btn-lg{ padding:0.85rem 1.6rem; font-size:1rem; border-radius:14px; }
+    .btn-sm{ padding:0.45rem 0.75rem; font-size:0.82rem; border-radius:10px; }
 
-    /* ==========================
-       BADGES / PILLS (optional)
-       ========================== */
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      padding:0.22rem 0.6rem;
-      border-radius:999px;
-      font-size:0.75rem;
-      font-weight:800;
-      line-height:1.4;
-      white-space:nowrap;
-    }
-    .badge-tier1{ background:var(--green-100); color:var(--green-800); }
-    .badge-tier2{ background:var(--amber-100); color:var(--amber-800); }
-
-    /* ==========================
-       FOOTER
-       ========================== */
+    /* FOOTER */
     .footer{
       margin-top:auto;
       background: linear-gradient(180deg, rgba(15,23,36,0.98), rgba(11,18,32,1));
@@ -270,58 +222,44 @@
       border-top: 1px solid rgba(255,255,255,0.08);
     }
     .footer-inner{
-      max-width:var(--container);
-      margin:0 auto;
-      padding:1.75rem 1.25rem;
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 1.75rem 1.25rem;
       display:grid;
       grid-template-columns: 1.1fr 0.9fr;
-      gap:1rem;
-      align-items:start;
+      gap: 1rem;
     }
     .footer-brand{
       font-family:var(--font-heading);
-      color:rgba(255,255,255,0.92);
+      color: rgba(255,255,255,0.92);
       font-weight:800;
       letter-spacing:-0.02em;
       font-size:1rem;
       margin-bottom:0.35rem;
     }
     .footer-tagline{
-      color:rgba(255,255,255,0.70);
+      color: rgba(255,255,255,0.70);
       font-size:0.9rem;
       margin-bottom:0.9rem;
-      line-height:1.5;
     }
     .footer-legal{
-      color:rgba(255,255,255,0.62);
+      color: rgba(255,255,255,0.62);
       font-size:0.82rem;
       line-height:1.7;
     }
-    .footer-legal strong{ color:rgba(255,255,255,0.85); }
+    .footer-legal strong{ color: rgba(255,255,255,0.85); }
 
-    .footer-links{
-      display:flex;
-      flex-direction:column;
-      gap:0.4rem;
-      align-items:flex-start;
-      justify-content:flex-start;
-    }
     .footer-links a{
-      color:rgba(255,255,255,0.72);
-      font-size:0.9rem;
+      color: rgba(255,255,255,0.80);
+      text-decoration:none;
       font-weight:700;
-      padding:0.25rem 0;
     }
-    .footer-links a:hover{ color:#fff; }
+    .footer-links a:hover{ color:#fff; text-decoration: underline; }
 
-    /* ==========================
-       RESPONSIVE
-       ========================== */
     @media (max-width:720px){
       .nav-inner{ padding:0.75rem 1rem; }
-      .container{ padding:1.6rem 1rem; }
-      .footer-inner{ grid-template-columns: 1fr; }
-      .nav-link{ padding:0.42rem 0.6rem; font-size:0.88rem; }
+      .container{ padding: 1.6rem 1rem; }
+      .footer-inner{ grid-template-columns:1fr; }
     }
   </style>
 
@@ -343,11 +281,9 @@
             <a class="nav-link" href="/dashboard/contractor">Dashboard</a>
             <span class="nav-pill" title="{{ session.get('contractor_name') }}">{{ session.get('contractor_name') }}</span>
             <a class="nav-link" href="/logout">Logout</a>
-
           {% elif session.get('is_admin') %}
             <a class="nav-link" href="/admin/contractors">Admin</a>
             <a class="nav-link" href="/logout">Logout</a>
-
           {% else %}
             <a class="nav-link" href="/login/contractor">Contractor Login</a>
           {% endif %}
@@ -355,7 +291,8 @@
       </div>
     </header>
 
-    <main>
+    <!-- IMPORTANT: this container fixes “stretched pages” -->
+    <main class="container">
       {% block content %}{% endblock %}
     </main>
 
@@ -372,9 +309,11 @@
         </div>
 
         <div class="footer-links">
-          <a href="/feed">View Notices</a>
-          <a href="/register/contractor">Contractor Registration</a>
-          <a href="/login/contractor">Contractor Login</a>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <a href="/feed">View Notices</a>
+            <a href="/register/contractor">Contractor Registration</a>
+            <a href="/login/contractor">Contractor Login</a>
+          </div>
         </div>
       </div>
     </footer>

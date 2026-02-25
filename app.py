@@ -853,44 +853,52 @@ def create_post():
         allowed_types=allowed_types, errors=[], form=MultiDict(),
     )
 
+from flask import abort, redirect, url_for, session
+# make sure get_db() and audit() exist already
 
-# ==========================================================================
-# Routes: Admin
-# ==========================================================================
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
+def delete_post(post_id):
+    # Require contractor login
+    if "contractor_id" not in session:
+        return redirect(url_for("login_contractor"))
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin_login():
-    if session.get("is_admin"):
-        return redirect(url_for("admin_contractors"))
-    error = None
-    if request.method == "POST":
-        if request.form.get("password") == ADMIN_PASSWORD:
-            session["is_admin"] = True
-            return redirect(url_for("admin_contractors"))
-        error = "Invalid password."
-    return render_template("admin_login.html", error=error)
-
-
-@app.route("/admin/contractors")
-@require_admin_session
-def admin_contractors():
     db = get_db()
-    pending = db.execute(
-        "SELECT * FROM contractors WHERE status='pending' ORDER BY created_at"
-    ).fetchall()
-    approved = db.execute(
-        "SELECT * FROM contractors WHERE status='approved' ORDER BY updated_at DESC"
-    ).fetchall()
-    denied = db.execute(
-        "SELECT * FROM contractors WHERE status='denied' ORDER BY updated_at DESC"
-    ).fetchall()
-    revoked = db.execute(
-        "SELECT * FROM contractors WHERE status='revoked' ORDER BY revoked_at DESC"
-    ).fetchall()
-    return render_template(
-        "admin_contractors.html",
-        pending=pending, approved=approved, denied=denied, revoked=revoked,
-    )
+
+    # Only allow deleting your own contractor (tier2) posts
+    post = db.execute("""
+        SELECT id, post_type, poster_display_name
+        FROM posts
+        WHERE id = ?
+          AND poster_type = 'tier2'
+          AND poster_id = ?
+          AND status != 'removed'
+        LIMIT 1
+    """, (post_id, session["contractor_id"])).fetchone()
+
+    if not post:
+        abort(404)
+
+    db.execute("""
+        UPDATE posts
+        SET status = 'removed',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    """, (post_id,))
+    db.commit()
+
+    # Log it (optional but nice)
+    try:
+        audit(
+            "remove_post",
+            "post",
+            post_id,
+            f"Contractor removed post: {post['post_type']} ({post['poster_display_name']})",
+            session.get("contractor_email", "contractor")
+        )
+    except Exception:
+        pass
+
+    return redirect(url_for("dashboard_contractor"))
 
 
 @app.route("/admin/contractors/<int:cid>/approve", methods=["POST"])

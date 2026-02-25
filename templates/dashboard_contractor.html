@@ -1,95 +1,194 @@
 {% extends "base.html" %}
-{% block title %}Contractor Dashboard - StormCalls{% endblock %}
+{% block title %}Contractor Dashboard - LinemanStormCalls{% endblock %}
+
+{% block extra_css %}
+<style>
+  .dash-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:1rem;
+    flex-wrap:wrap;
+    margin-bottom:1rem;
+  }
+
+  .dash-title h1{ margin:0; }
+  .dash-title p{
+    margin:0.35rem 0 0;
+    color: var(--gray-600);
+    font-size:0.95rem;
+  }
+
+  .status-card{
+    text-align:center;
+    padding:2.25rem 1.5rem;
+  }
+  .status-card h2{ margin-top:0.75rem; }
+  .status-card p{
+    margin:0.5rem auto 0;
+    max-width:560px;
+    color: var(--gray-600);
+  }
+
+  .meta-line{
+    font-size:0.9rem;
+    color: var(--gray-600);
+    margin-top:0.25rem;
+  }
+
+  .posts-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    flex-wrap:wrap;
+    margin-top:1.25rem;
+    margin-bottom:0.75rem;
+  }
+  .posts-header h2{ margin:0; }
+
+  .post-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:1rem;
+    flex-wrap:wrap;
+  }
+
+  .post-actions{
+    display:flex;
+    gap:0.5rem;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+
+  .post-subtle{
+    font-size:0.82rem;
+    color: var(--gray-500);
+    margin-top:0.5rem;
+  }
+
+  .empty{
+    text-align:center;
+    padding:2rem 1.5rem;
+    color: var(--gray-600);
+  }
+  .empty a{ font-weight:800; }
+
+  /* small screen polish */
+  @media (max-width: 640px){
+    .dash-header{ align-items:stretch; }
+    .post-actions .btn{ width:100%; justify-content:center; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-{% if contractor.status == "pending" %}
-  <div class="alert alert-warning">
-    Your contractor application is <b>pending review</b>. You’ll be able to post storm calls once approved.
+<div class="dash-header">
+  <div class="dash-title">
+    <h1>Contractor Dashboard</h1>
+    <p>Manage your storm mobilization notices.</p>
   </div>
-{% elif contractor.status == "denied" %}
-  <div class="alert alert-danger">
-    Your contractor application was <b>denied</b>.
-    {% if contractor.admin_notes %}<div><b>Notes:</b> {{ contractor.admin_notes }}</div>{% endif %}
-  </div>
-{% elif contractor.status == "revoked" %}
-  <div class="alert alert-danger">
-    Your contractor access was <b>revoked</b>.
-    {% if contractor.revoked_reason %}<div><b>Reason:</b> {{ contractor.revoked_reason }}</div>{% endif %}
-  </div>
-{% endif %}
-<div class="container">
-    <h1 style="margin-bottom:1.5rem;">Contractor Dashboard</h1>
 
-    {% if contractor.status == 'pending' %}
-    <div class="card" style="text-align:center;padding:3rem;">
-        <span class="badge badge-pending" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Pending Review</span>
-        <h2 style="margin-top:1rem;">Your application is under review</h2>
-        <p style="color:#666;margin-top:0.5rem;">We will contact you within 24-48 hours. You cannot post until approved.</p>
-    </div>
-    {% elif contractor.status == 'denied' %}
-    <div class="card" style="text-align:center;padding:3rem;">
-        <span class="badge badge-denied" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Denied</span>
-        <h2 style="margin-top:1rem;">Your application was denied</h2>
-        {% if contractor.admin_notes %}
-        <p style="color:#666;margin-top:0.5rem;">Notes: {{ contractor.admin_notes }}</p>
-        {% endif %}
-    </div>
-    {% elif contractor.status == 'revoked' %}
-    <div class="card" style="text-align:center;padding:3rem;">
-        <span class="badge badge-revoked" style="font-size:0.9rem;padding:0.3rem 0.8rem;">Revoked</span>
-        <h2 style="margin-top:1rem;">Your posting privileges have been revoked</h2>
-        <p style="color:#666;margin-top:0.5rem;">
-            Please contact support if you believe this is an error.
-        </p>
-        {% if contractor.revoked_reason %}
-        <p style="color:#888;margin-top:0.5rem;font-size:0.9rem;">Reason: {{ contractor.revoked_reason }}</p>
-        {% endif %}
-    </div>
-    {% else %}
-
-    <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-            <div>
-                <span class="badge badge-approved">Verified Poster</span>
-                <strong style="margin-left:0.5rem;">{{ contractor.company_legal_name }}</strong>
-                <span style="color:#888;margin-left:0.5rem;">({{ contractor.headquarters_state }})</span>
-            </div>
-      {% if contractor.status == "approved" %}
-  <a href="{{ url_for('create_post') }}" class="btn btn-primary">
-    Create a Storm Call
-  </a>
-{% else %}
-  <button class="btn btn-primary" disabled title="Approval required to post">
-    Create a Storm Call
-  </button>
-{% endif %}
-
-    </div>
-
-    <h2 class="section-title">Your Posts ({{ posts|length }})</h2>
-
-    {% if posts %}
-    {% for post in posts %}
-    <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:0.5rem;">
-            <div>
-                <span class="badge badge-tier2">{{ post.post_type }}</span>
-                <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
-                <h3 style="margin-top:0.35rem;">{{ post.region }} &mdash; {{ post.states|from_json|join(', ') }}</h3>
-                <div style="font-size:0.9rem;color:#666;margin-top:0.25rem;">
-                    Start: {{ post.expected_start_window }} &middot; Clearing: {{ post.clearing_locals }}
-                </div>
-            </div>
-            <a href="/feed/{{ post.id }}" class="btn btn-outline btn-sm">View</a>
-        </div>
-        <div style="font-size:0.82rem;color:#aaa;margin-top:0.5rem;">Posted {{ post.created_at }}</div>
-    </div>
-    {% endfor %}
-    {% else %}
-    <div class="card" style="text-align:center;color:#888;padding:2rem;">
-        No posts yet. <a href="/post/create">Create your first notice.</a>
-    </div>
-    {% endif %}
-
-    {% endif %}
+  {% if contractor.status == "approved" %}
+    <a class="btn btn-primary" href="{{ url_for('create_post') }}">Create a Storm Call</a>
+  {% else %}
+    <button class="btn btn-primary" disabled title="Approval required to post">Create a Storm Call</button>
+  {% endif %}
 </div>
+
+{# ---------- STATUS STATES ---------- #}
+{% if contractor.status in ["pending", "denied", "revoked"] %}
+  <div class="card status-card">
+    {% if contractor.status == "pending" %}
+      <span class="badge badge-pending">Pending Review</span>
+      <h2>Your application is under review</h2>
+      <p>Once approved, you’ll be able to post storm calls. If we need anything, we’ll reach out using your registration contact info.</p>
+
+    {% elif contractor.status == "denied" %}
+      <span class="badge badge-denied">Denied</span>
+      <h2>Your application was denied</h2>
+      {% if contractor.admin_notes %}
+        <p><strong>Notes:</strong> {{ contractor.admin_notes }}</p>
+      {% else %}
+        <p>If you believe this was a mistake, contact support and include your company legal name.</p>
+      {% endif %}
+
+    {% elif contractor.status == "revoked" %}
+      <span class="badge badge-revoked">Revoked</span>
+      <h2>Your posting privileges have been revoked</h2>
+      {% if contractor.revoked_reason %}
+        <p><strong>Reason:</strong> {{ contractor.revoked_reason }}</p>
+      {% else %}
+        <p>Please contact support if you believe this is an error.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+
+{% else %}
+  {# ---------- APPROVED DASHBOARD ---------- #}
+  <div class="card">
+    <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+      <span class="badge badge-approved">Approved</span>
+      <strong>{{ contractor.company_legal_name }}</strong>
+      <span style="color: var(--gray-600);">({{ contractor.headquarters_state }})</span>
+    </div>
+    <div class="meta-line">
+      Logged in as <strong>{{ contractor.company_email }}</strong>
+    </div>
+  </div>
+
+  <div class="posts-header">
+    <h2>Your Posts ({{ posts|length }})</h2>
+  </div>
+
+  {% if posts %}
+    {% for post in posts %}
+      <div class="card">
+        <div class="post-row">
+          <div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap; align-items:center;">
+              <span class="badge badge-tier2">{{ post.post_type }}</span>
+              <span class="badge badge-{{ post.status }}">{{ post.status|capitalize }}</span>
+            </div>
+
+            <h3 style="margin-top:0.4rem;">
+              {{ post.region }} — {{ post.states|from_json|join(', ') }}
+            </h3>
+
+            <div class="meta-line">
+              <strong>Start:</strong> {{ post.expected_start_window }}
+              &nbsp;·&nbsp;
+              <strong>Clearing:</strong> {{ post.clearing_locals }}
+            </div>
+
+            <div class="post-subtle">
+              Posted {{ post.created_at }}
+              {% if post.expires_at %}
+                &nbsp;·&nbsp; Expires {{ post.expires_at }}
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="post-actions">
+            <a href="/feed/{{ post.id }}" class="btn btn-outline btn-sm">View</a>
+
+            {# DELETE (soft delete) #}
+            <form method="POST"
+                  action="{{ url_for('delete_post', post_id=post.id) }}"
+                  style="margin:0;"
+                  onsubmit="return confirm('Delete this notice? This will remove it from the feed.');">
+              <button type="submit" class="btn btn-outline btn-sm">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card empty">
+      No posts yet. <a href="{{ url_for('create_post') }}">Create your first notice.</a>
+    </div>
+  {% endif %}
+
+{% endif %}
 {% endblock %}

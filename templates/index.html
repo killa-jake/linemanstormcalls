@@ -5,152 +5,100 @@
 <style>
   /* HERO */
   .hero {
-    background: var(--navy-900);
-    color: #fff;
+    background: linear-gradient(180deg, var(--navy-900), var(--navy-800));
     text-align: center;
-    padding: 4.5rem 1.25rem 3.75rem;
+    padding: 4.5rem 1.25rem 4rem;
     position: relative;
-    overflow: hidden;
-  }
-
-  /* subtle glow accents */
-  .hero::before {
-    content: "";
-    position: absolute;
-    inset: -200px -200px auto -200px;
-    height: 420px;
-    background:
-      radial-gradient(260px 260px at 25% 40%, rgba(245,158,11,0.22), transparent 60%),
-      radial-gradient(240px 240px at 75% 35%, rgba(232,114,12,0.18), transparent 62%);
-    pointer-events: none;
-    filter: blur(2px);
   }
 
   .hero::after {
     content: "";
     position: absolute;
+    bottom: 0;
     left: 0;
     right: 0;
-    bottom: 0;
     height: 3px;
     background: var(--orange-500);
   }
 
   .hero-inner {
-    position: relative;
-    max-width: 820px;
+    max-width: 760px;
     margin: 0 auto;
   }
 
-  .logo-wrap {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1.25rem;
+  /* LOGO CARD */
+  .logo-card {
+    display: inline-block;
+    background: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+    margin-bottom: 2rem;
   }
 
   .hero-logo {
-    height: 84px;
+    height: 80px;
     width: auto;
     display: block;
-    filter: drop-shadow(0 12px 24px rgba(0,0,0,0.28));
   }
 
   .hero-tagline {
+    color: rgba(255,255,255,0.85);
     font-size: 1.05rem;
-    color: rgba(255,255,255,0.82);
     line-height: 1.7;
-    max-width: 660px;
-    margin: 0 auto 0.9rem;
+    margin-bottom: 1rem;
   }
 
   .hero-note {
-    font-size: 0.88rem;
-    color: rgba(255,255,255,0.62);
-    max-width: 680px;
-    margin: 0 auto 2rem;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
   }
 
   .hero-actions {
     display: flex;
     justify-content: center;
-    gap: 0.85rem;
+    gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 1.25rem;
   }
 
   .btn-hero {
     font-size: 1rem;
-    padding: 0.85rem 1.6rem;
-    border-radius: 12px;
+    padding: 0.9rem 1.7rem;
   }
-
-  .hero-links {
-    font-size: 0.92rem;
-    color: rgba(255,255,255,0.70);
-  }
-  .hero-links a {
-    color: var(--orange-400);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  .hero-links a:hover { text-decoration: underline; }
 
   /* FEATURES */
   .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.25rem;
-    margin-top: 2.25rem;
+    gap: 1.5rem;
+    margin-top: 3rem;
   }
 
   .feature-card {
     background: #fff;
-    border-radius: 16px;
-    padding: 1.6rem 1.4rem;
-    text-align: left;
+    border-radius: 18px;
+    padding: 1.8rem;
     box-shadow: var(--shadow-card);
     border: 1px solid var(--gray-200);
-    position: relative;
-    overflow: hidden;
+    transition: transform 150ms ease, box-shadow 150ms ease;
   }
 
-  .feature-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 3px;
-    width: 100%;
-    background: linear-gradient(90deg, var(--orange-500), rgba(232,114,12,0.2));
-  }
-
-  .feature-top {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.6rem;
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
   }
 
   .feature-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--gray-100);
-    border: 1px solid var(--gray-200);
-    font-size: 1.15rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
   }
 
   .feature-card h3 {
-    margin: 0;
-    font-size: 1.05rem;
-    color: var(--navy-800);
+    margin-bottom: 0.5rem;
   }
 
   .feature-card p {
-    margin: 0.25rem 0 0;
     color: var(--gray-600);
     font-size: 0.92rem;
     line-height: 1.6;
@@ -158,8 +106,8 @@
 
   @media (max-width: 640px) {
     .hero { padding: 3.5rem 1rem 3rem; }
-    .hero-logo { height: 70px; }
-    .hero-tagline { font-size: 1rem; }
+    .logo-card { padding: 1rem 1.5rem; }
+    .hero-logo { height: 65px; }
     .btn-hero { width: 100%; justify-content: center; }
   }
 </style>
@@ -169,21 +117,22 @@
 <section class="hero">
   <div class="hero-inner">
 
-    <div class="logo-wrap">
-      <img
-        src="{{ url_for('static', filename='staticfavicon.png') }}"
+    <div class="logo-card">
+      <img 
+        src="{{ url_for('static', filename='staticfavicon.png') }}" 
         alt="LinemanStormCalls"
         class="hero-logo"
       >
     </div>
 
     <p class="hero-tagline">
-      A public bulletin board for storm restoration mobilization notices — view contractor calls in one place.
+      A centralized bulletin board for storm restoration mobilization notices.
+      Browse active contractor calls in one place.
     </p>
 
     <p class="hero-note">
       Informational platform only. No dispatch, no hiring, no claims.
-      All work must clear through the appropriate IBEW local and contractor onboarding.
+      All work must clear through the appropriate IBEW local.
     </p>
 
     <div class="hero-actions">
@@ -191,38 +140,30 @@
       <a href="/register/contractor" class="btn btn-outline btn-hero">Contractor Registration</a>
     </div>
 
-    <div class="hero-links">
-      Contractors: include your onboarding link and show-up location in the notice notes.
-    </div>
-
   </div>
 </section>
 
 <div class="container">
   <div class="features">
+
     <div class="feature-card">
-      <div class="feature-top">
-        <div class="feature-icon">⚡</div>
-        <h3>Open Visibility</h3>
-      </div>
-      <p>No login required to view notices. Linemen browse mobilization calls freely, anytime.</p>
+      <div class="feature-icon">⚡</div>
+      <h3>Open Visibility</h3>
+      <p>No login required. Linemen can browse mobilization notices freely and instantly.</p>
     </div>
 
     <div class="feature-card">
-      <div class="feature-top">
-        <div class="feature-icon">✅</div>
-        <h3>Verified Posters</h3>
-      </div>
-      <p>Only approved contractors can post notices. You control approvals from the admin panel.</p>
+      <div class="feature-icon">✅</div>
+      <h3>Approved Posters</h3>
+      <p>Only verified contractors can publish notices. You control approvals from the admin panel.</p>
     </div>
 
     <div class="feature-card">
-      <div class="feature-top">
-        <div class="feature-icon">🧾</div>
-        <h3>Clears Through Local</h3>
-      </div>
-      <p>All work routes through the appropriate IBEW local. This platform does not dispatch or hire.</p>
+      <div class="feature-icon">🧾</div>
+      <h3>Clears Through Local</h3>
+      <p>All work routes through the appropriate IBEW local. This platform does not replace hiring halls.</p>
     </div>
+
   </div>
 </div>
 {% endblock %}

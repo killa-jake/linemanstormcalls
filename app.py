@@ -856,6 +856,15 @@ def create_post():
 from flask import abort, redirect, url_for, session
 # make sure get_db() and audit() exist already
 
+@app.route("/admin/contractors")
+@require_admin_session
+def admin_contractors():
+    db = get_db()
+    contractors = db.execute(
+        "SELECT * FROM contractors ORDER BY created_at DESC"
+    ).fetchall()
+    return render_template("admin_contractors.html", contractors=contractors)
+
 @app.route("/post/<int:post_id>/delete", methods=["POST"])
 def delete_post(post_id):
     # Require contractor login

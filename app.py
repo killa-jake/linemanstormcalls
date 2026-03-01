@@ -897,10 +897,38 @@ from flask import abort, redirect, url_for, session
 @require_admin_session
 def admin_contractors():
     db = get_db()
-    contractors = db.execute(
-        "SELECT * FROM contractors ORDER BY created_at DESC"
-    ).fetchall()
-    return render_template("admin_contractors.html", contractors=contractors)
+
+    pending = db.execute("""
+        SELECT * FROM contractors
+        WHERE status = 'pending'
+        ORDER BY created_at DESC
+    """).fetchall()
+
+    approved = db.execute("""
+        SELECT * FROM contractors
+        WHERE status = 'approved'
+        ORDER BY created_at DESC
+    """).fetchall()
+
+    revoked = db.execute("""
+        SELECT * FROM contractors
+        WHERE status = 'revoked'
+        ORDER BY created_at DESC
+    """).fetchall()
+
+    denied = db.execute("""
+        SELECT * FROM contractors
+        WHERE status = 'denied'
+        ORDER BY created_at DESC
+    """).fetchall()
+
+    return render_template(
+        "admin_contractors.html",
+        pending=pending,
+        approved=approved,
+        revoked=revoked,
+        denied=denied,
+    )
 
 @app.route("/post/<int:post_id>/delete", methods=["POST"])
 def delete_post(post_id):

@@ -23,7 +23,7 @@ app = Flask(__name__)
 import os
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
 DATABASE = "stormcalls.db"
-ADMIN_PASSWORD = "NXR420!yourmother"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "dev-admin-password")
 
 # ==========================================================================
 # Constants
@@ -691,6 +691,43 @@ def login_local():
 
 @app.route("/logout")
 def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
+# ======================================================================
+# Admin Login + Admin Landing
+# ======================================================================
+
+@app.route("/admin")
+def admin_home():
+    # If logged in, send to contractors page
+    if session.get("is_admin"):
+        return redirect(url_for("admin_contractors"))
+    # Otherwise go to admin login
+    return redirect(url_for("admin_login"))
+
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    error = None
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+
+        if not password:
+            error = "Enter admin password."
+        elif password != ADMIN_PASSWORD:
+            error = "Invalid admin password."
+        else:
+            session.clear()
+            session["is_admin"] = True
+            return redirect(url_for("admin_contractors"))
+
+    return render_template("admin_login.html", error=error)
+
+
+@app.route("/admin/logout")
+def admin_logout():
     session.clear()
     return redirect(url_for("index"))
 
